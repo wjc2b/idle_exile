@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bdsirb3fe43j7"
-path="res://.godot/imported/PlayerAttack.png-167e4d54ba1ecde61cecd49961435645.ctex"
+uid="uid://y6wef5xhdk2f"
+path="res://.godot/imported/EnemyIdleMoveHurt.png-86e1191943695d37c81fcdd1d715680f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/Animations/PlayerAttack.png"
-dest_files=["res://.godot/imported/PlayerAttack.png-167e4d54ba1ecde61cecd49961435645.ctex"]
+source_file="res://Assets/Animations/EnemyIdleMoveHurt.png"
+dest_files=["res://.godot/imported/EnemyIdleMoveHurt.png-86e1191943695d37c81fcdd1d715680f.ctex"]
 
 [params]
 

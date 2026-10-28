@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://4x2s02aqww5r"
-path="res://.godot/imported/Shadow.png-0a9b97999a57d73d6ced9e4696d0e5b2.ctex"
+uid="uid://bdsirb3fe43j7"
+path="res://.godot/imported/PlayerAttack.png-bade457afa0edab0100605652b8867b4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/Animations/Shadow.png"
-dest_files=["res://.godot/imported/Shadow.png-0a9b97999a57d73d6ced9e4696d0e5b2.ctex"]
+source_file="res://Assets/Animations/PlayerAttack.png"
+dest_files=["res://.godot/imported/PlayerAttack.png-bade457afa0edab0100605652b8867b4.ctex"]
 
 [params]
 

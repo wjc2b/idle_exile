@@ -18,7 +18,7 @@ static func fmt(value: float) -> String:
 	if magnitude < 1000.0:
 		return sign_text + str(int(round(magnitude)))
 	if magnitude >= SAFE_LIMIT:
-		return "%s%.2e" % [sign_text, magnitude]
+		return sign_text + _scientific(magnitude)
 	var index := 0
 	while magnitude >= 1000.0 and index < SUFFIXES.size() - 1:
 		magnitude /= 1000.0
@@ -48,3 +48,15 @@ static func fmt_time(seconds: float) -> String:
 
 static func fmt_rate(per_second: float) -> String:
 	return "%s/秒" % fmt(per_second)
+
+
+## GDScript 的 % 格式化不支持 %e，这里手搓科学计数法。
+static func _scientific(value: float) -> String:
+	if value <= 0.0:
+		return "0"
+	var exponent := int(floor(log(value) / log(10.0)))
+	var mantissa := value / pow(10.0, float(exponent))
+	if mantissa >= 10.0:
+		mantissa /= 10.0
+		exponent += 1
+	return "%.2fe%d" % [mantissa, exponent]

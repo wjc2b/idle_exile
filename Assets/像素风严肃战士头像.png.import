@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://y6wef5xhdk2f"
-path="res://.godot/imported/EnemyIdleMoveHurt.png-11c659dd37b64253be7bc9c348cbe87c.ctex"
+uid="uid://d2pauqifjcoj"
+path="res://.godot/imported/像素风严肃战士头像.png-92501ed1eebc261ff9d9b54d33101007.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/Animations/EnemyIdleMoveHurt.png"
-dest_files=["res://.godot/imported/EnemyIdleMoveHurt.png-11c659dd37b64253be7bc9c348cbe87c.ctex"]
+source_file="res://Assets/像素风严肃战士头像.png"
+dest_files=["res://.godot/imported/像素风严肃战士头像.png-92501ed1eebc261ff9d9b54d33101007.ctex"]
 
 [params]
 

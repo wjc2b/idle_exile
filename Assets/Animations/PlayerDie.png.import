@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cgo43agx852vx"
-path="res://.godot/imported/GrassCutAnimation.png-c99da306afff6651a54ae4e90ea0614c.ctex"
+uid="uid://brbx4o4l36l72"
+path="res://.godot/imported/PlayerDie.png-7b668caa43d1238861452cd38dc8ee1e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/VFX/GrassCutAnimation.png"
-dest_files=["res://.godot/imported/GrassCutAnimation.png-c99da306afff6651a54ae4e90ea0614c.ctex"]
+source_file="res://Assets/Animations/PlayerDie.png"
+dest_files=["res://.godot/imported/PlayerDie.png-7b668caa43d1238861452cd38dc8ee1e.ctex"]
 
 [params]
 

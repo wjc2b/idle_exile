@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deq6tqeglmtii"
-path="res://.godot/imported/Background_Grass.png-ba4bd322e290585d532b65df7c5fb849.ctex"
+uid="uid://bb1f8vff3ax61"
+path="res://.godot/imported/TilemapPlatform.png-6ee2e8dc112c0f3c0f8f0c88c6d35aec.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/Level/Background_Grass.png"
-dest_files=["res://.godot/imported/Background_Grass.png-ba4bd322e290585d532b65df7c5fb849.ctex"]
+source_file="res://Assets/Level/TilemapPlatform.png"
+dest_files=["res://.godot/imported/TilemapPlatform.png-6ee2e8dc112c0f3c0f8f0c88c6d35aec.ctex"]
 
 [params]
 

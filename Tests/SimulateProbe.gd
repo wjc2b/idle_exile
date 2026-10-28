@@ -1,53 +1,74 @@
 extends SceneTree
 
-## 数值探针：不开窗口，直接按固定步长跑 60 分钟战斗，
-## 每 5 分钟（游戏内）打印一次波次/等级/属性，用来检查曲线有没有卡死或爆炸。
+## 数值探针：不开窗口，三个职业各自跑 30 分钟自动战斗，
+## 自动捡装备（更好就换）、自动点天赋，打印推进曲线。
 ## 用法：Godot --headless --path . --script res://Tests/SimulateProbe.gd
 
-const DT := 0.2
-const TOTAL_MINUTES := 60.0
-const REPORT_EVERY_MINUTES := 5.0
+const DT := 0.25
+const MINUTES := 30.0
 
 
 func _init() -> void:
 	randomize()
-	var player := PlayerState.new()
-	var combat := CombatSystem.new()
-	combat.setup(player, 1)
-
-	var steps := int(TOTAL_MINUTES * 60.0 / DT)
-	var report_step := int(REPORT_EVERY_MINUTES * 60.0 / DT)
-	var bought := 0
-
-	print("分钟   波次  等级  金币      攻击   防御   生命   击杀")
-	for i in steps:
-		combat.tick(DT)
-		combat.drain_events()
-		bought += _spend_gold(player)
-		if (i + 1) % report_step == 0:
-			_print_row(float(i + 1) * DT, player, combat)
-
-	_print_row(TOTAL_MINUTES * 60.0, player, combat)
-	print("累计购买强化次数：%d" % bought)
+	print("职业  分钟  波次  等级  击杀   攻击     生命      护甲   装备分")
+	for class_id in GameData.CLASSES.keys():
+		_run_class(str(class_id))
+	print("完成")
 	quit()
 
 
-func _spend_gold(player: PlayerState) -> int:
-	var bought := 0
-	for kind in ["atk", "hp", "def", "atk", "hp"]:
-		if player.buy_upgrade(kind):
-			bought += 1
-	return bought
+func _run_class(class_id: String) -> void:
+	var character := Character.new()
+	character.init_class(class_id)
+	var combat := CombatSystem.new()
+	combat.setup(character, 1)
+
+	var steps := int(MINUTES * 60.0 / DT)
+	var report_every := int(10.0 * 60.0 / DT)
+
+	for i in steps:
+		combat.tick(DT)
+		combat.drain_events()
+
+		var killed := combat.consume_kills()
+		if killed > 0:
+			for k in range(killed):
+				_handle_drop(character, combat.wave)
+			while _spend_talent(character):
+				pass
+			combat.refresh_stats()
+
+		if (i + 1) % report_every == 0:
+			_print_row(character, combat, float(i + 1) * DT / 60.0)
+
+	_print_row(character, combat, MINUTES)
 
 
-func _print_row(seconds: float, player: PlayerState, combat: CombatSystem) -> void:
-	print("%5.1f  %4d  %3d  %-8s  %-6s %-6s %-6s %d" % [
-		seconds / 60.0,
-		combat.enemy.wave,
-		player.level,
-		Num.fmt(player.gold),
-		Num.fmt(player.attack()),
-		Num.fmt(player.defense()),
-		Num.fmt(player.max_hp()),
+func _handle_drop(character: Character, wave: int) -> void:
+	var item := ItemGenerator.roll_item(wave)
+	var current: Item = character.equipment.get(item.slot)
+	if current == null or item.score() > current.score():
+		character.equip(item)
+	else:
+		character.add_item(item)
+
+
+func _spend_talent(character: Character) -> bool:
+	for talent_id in character.talent_ranks.keys():
+		if character.allocate_talent(str(talent_id)):
+			return true
+	return false
+
+
+func _print_row(character: Character, combat: CombatSystem, minutes: float) -> void:
+	print("%-6s %5.1f  %4d  %4d  %5d  %-8s  %-9s %-6s %-6s" % [
+		character.class_display(),
+		minutes,
+		combat.wave,
+		character.level,
 		combat.kills,
+		Num.fmt(character.stats().value("damage")),
+		Num.fmt(character.max_health()),
+		Num.fmt(character.armor()),
+		Num.fmt(character.equipped_score()),
 	])

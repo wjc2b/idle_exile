@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://brbx4o4l36l72"
-path="res://.godot/imported/PlayerDie.png-b334fdb4ff2350585b70e004ffa6fb10.ctex"
+uid="uid://deq6tqeglmtii"
+path="res://.godot/imported/Background_Grass.png-2f5439982204128ba21b9a64fa97789d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/Animations/PlayerDie.png"
-dest_files=["res://.godot/imported/PlayerDie.png-b334fdb4ff2350585b70e004ffa6fb10.ctex"]
+source_file="res://Assets/Level/Background_Grass.png"
+dest_files=["res://.godot/imported/Background_Grass.png-2f5439982204128ba21b9a64fa97789d.ctex"]
 
 [params]
 

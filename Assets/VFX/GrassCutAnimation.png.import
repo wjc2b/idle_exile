@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bb1f8vff3ax61"
-path="res://.godot/imported/TilemapPlatform.png-521ab1719a9dd402126ef7b5b6390914.ctex"
+uid="uid://cgo43agx852vx"
+path="res://.godot/imported/GrassCutAnimation.png-a688699462919cb769580651d2905eee.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/Level/TilemapPlatform.png"
-dest_files=["res://.godot/imported/TilemapPlatform.png-521ab1719a9dd402126ef7b5b6390914.ctex"]
+source_file="res://Assets/VFX/GrassCutAnimation.png"
+dest_files=["res://.godot/imported/GrassCutAnimation.png-a688699462919cb769580651d2905eee.ctex"]
 
 [params]
 

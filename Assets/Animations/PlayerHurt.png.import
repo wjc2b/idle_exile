@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://beqg27rbpvhu4"
-path="res://.godot/imported/PlayerSmoke.png-5fa98657dab6a5dbc4e90c33e6b69fad.ctex"
+uid="uid://b13xfqf1sxcol"
+path="res://.godot/imported/PlayerHurt.png-29bede83e257456a2f6cda3005e62122.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Asserts/VFX/PlayerSmoke.png"
-dest_files=["res://.godot/imported/PlayerSmoke.png-5fa98657dab6a5dbc4e90c33e6b69fad.ctex"]
+source_file="res://Assets/Animations/PlayerHurt.png"
+dest_files=["res://.godot/imported/PlayerHurt.png-29bede83e257456a2f6cda3005e62122.ctex"]
 
 [params]
 
