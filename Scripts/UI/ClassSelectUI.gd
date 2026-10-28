@@ -68,6 +68,7 @@ func _build_card(class_id: String) -> Control:
 	box.add_theme_constant_override("separation", 8)
 	padding.add_child(box)
 
+	box.add_child(_portrait(str(data.get("portrait", "")), 210))
 	box.add_child(UITheme.label(str(data.get("name", "")), 36, UITheme.TEXT))
 	box.add_child(UITheme.label(str(data.get("tagline", "")), 18, UITheme.GOLD))
 	box.add_child(UITheme.label(str(data.get("desc", "")), 15, UITheme.DIM, true))
@@ -112,6 +113,17 @@ func _build_card(class_id: String) -> Control:
 
 func cards_spacing(panel: Control) -> void:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+
+func _portrait(path: String, height: float) -> TextureRect:
+	var node := TextureRect.new()
+	if path != "" and ResourceLoader.exists(path):
+		node.texture = load(path)
+	node.custom_minimum_size = Vector2(0, height)
+	node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	return node
 
 
 func _on_choose(class_id: String) -> void:

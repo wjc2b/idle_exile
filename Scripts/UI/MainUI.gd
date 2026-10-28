@@ -209,6 +209,8 @@ func _build_header() -> Control:
 	row.add_theme_constant_override("separation", 26)
 	padding.add_child(row)
 
+	var avatar := _class_portrait(46.0)
+	row.add_child(avatar)
 	_class_label = UITheme.label("放逐者", 24, UITheme.GOLD)
 	row.add_child(_class_label)
 	_level_label = UITheme.label("等级 1", 18, UITheme.TEXT)
@@ -250,6 +252,20 @@ func _build_header() -> Control:
 	row.add_child(reset_button)
 
 	return header
+
+
+func _class_portrait(height: float) -> TextureRect:
+	var node := TextureRect.new()
+	var path := ""
+	if character != null:
+		path = str(character.class_data().get("portrait", ""))
+	if path != "" and ResourceLoader.exists(path):
+		node.texture = load(path)
+	node.custom_minimum_size = Vector2(height, height)
+	node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	return node
 
 
 func _build_build_tab() -> Control:
@@ -315,18 +331,19 @@ func _build_combat_tab() -> Control:
 	box.add_child(_enemy_text)
 
 	var player_row := HBoxContainer.new()
-	player_row.add_theme_constant_override("separation", 14)
+	player_row.add_theme_constant_override("separation", 16)
 	box.add_child(player_row)
-	var hp_tag := UITheme.label("你的生命", 16, UITheme.DIM)
-	hp_tag.custom_minimum_size = Vector2(96, 0)
-	player_row.add_child(hp_tag)
+	player_row.add_child(_class_portrait(104.0))
+	var player_info := VBoxContainer.new()
+	player_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	player_info.add_theme_constant_override("separation", 6)
+	player_row.add_child(player_info)
 	_player_bar = UITheme.progress(UITheme.HP)
-	_player_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	player_row.add_child(_player_bar)
+	player_info.add_child(_player_bar)
 	_player_text = UITheme.label("", 15, UITheme.TEXT)
-	box.add_child(_player_text)
+	player_info.add_child(_player_text)
 	_buff_label = UITheme.label("", 15, UITheme.OK)
-	box.add_child(_buff_label)
+	player_info.add_child(_buff_label)
 
 	box.add_child(HSeparator.new())
 	box.add_child(UITheme.label("战斗日志", 15, UITheme.DIM))
