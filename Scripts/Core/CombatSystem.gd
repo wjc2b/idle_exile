@@ -209,7 +209,7 @@ func _compute_damage(mult: float) -> float:
 	var damage := _stats.value("damage") * mult * (1.0 + _buff_bonus("damage_mult"))
 	var crit := clampf(_stats.value("crit") + _buff_bonus("crit"), 0.0, 0.95)
 	if randf() < crit:
-		damage *= _stats.value("crit_mult", 1.5)
+		damage *= maxf(1.0, _stats.value("crit_mult"))
 	var mitigation := 100.0 / (100.0 + maxf(0.0, enemy.armor()))
 	return maxf(1.0, damage * mitigation * randf_range(1.0 - DAMAGE_VARIANCE, 1.0 + DAMAGE_VARIANCE))
 
@@ -241,6 +241,8 @@ func _kill_enemy() -> void:
 	_pending_kills += 1
 	_events.append("[color=#8fd1a8]击败 %s，+%s 金币[/color]" % [enemy.display_name(), Num.fmt(reward)])
 	if levels > 0:
+		# 升级会改基础属性，必须重新聚合一次，否则挂机一整晚等级白涨。
+		refresh_stats()
 		player_hp = max_hp()
 		_events.append("[color=#e8c65f]升级！等级 %d，天赋点 +%d[/color]" % [character.level, levels])
 	player_hp = minf(max_hp(), player_hp + max_hp() * KILL_HEAL_RATIO)

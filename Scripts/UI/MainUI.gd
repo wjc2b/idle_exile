@@ -1,20 +1,23 @@
 class_name MainUI
 extends Control
 
-## 三页主界面：构筑（技能槽/天赋/装备）、战斗（挂机与日志）、背包（战利品）。
-## 全部用代码搭，改布局只改这个文件。
+## 三页主界面：构筑（技能槽/天赋）、战斗（挂机与日志）、角色（背包场景，按 I 开关）。
+## 角色页直接实例化 Screens/ui/Character/InventoryUI.tscn，布局在编辑器里改。
 
 signal skill_slot_changed(index: int, skill_id: String)
 signal talent_requested(talent_id: String)
 signal equip_requested(item: Item)
-signal unequip_requested(slot: String)
+signal equip_into_requested(item: Item, slot_key: String)
+signal unequip_requested(slot_key: String)
 signal upgrade_requested(item: Item)
 signal save_requested
 signal reset_requested
 signal exchange_requested
 
 const LOG_LIMIT := 200
-const TAB_NAMES := ["构筑", "战斗", "背包"]
+const TAB_NAMES := ["构筑", "战斗", "角色"]
+const TAB_CHARACTER := 2
+const InventoryScene := preload("res://Screens/ui/Character/InventoryUI.tscn")
 
 var character: Character
 var combat: CombatSystem
@@ -22,9 +25,11 @@ var combat: CombatSystem
 var _built := false
 var _build_dirty := true
 var _inventory_dirty := true
-var _current_tab := 0
+var _current_tab := 1
+## 关闭角色页时回到的那一页（最近一次看的非角色页）。
+var _prev_tab := 1
 var _log_lines := 0
-## 打开时默认显示哪一页（0 构筑 / 1 战斗 / 2 背包），调试用 --tab=N 覆盖。
+## 打开时默认显示哪一页（0 构筑 / 1 战斗 / 2 角色），调试用 --tab=N 覆盖。
 var initial_tab := 0
 
 var _class_label: Label
@@ -41,7 +46,6 @@ var _skill_rows: VBoxContainer
 var _skill_options: Array[OptionButton] = []
 var _talent_box: VBoxContainer
 var _talent_hint: Label
-var _equip_box: VBoxContainer
 
 var _wave_label: Label
 var _enemy_name: Label
@@ -55,8 +59,7 @@ var _kills_label: Label
 var _gold_earned_label: Label
 var _time_label: Label
 
-var _inventory_box: VBoxContainer
-var _inventory_hint: Label
+var inventory_view: InventoryUI
 
 
 func _ready() -> void:
@@ -65,6 +68,28 @@ func _ready() -> void:
 	_build_chrome()
 	_show_tab(initial_tab)
 	_built = true
+
+
+## I 键开关角色页（背包），Esc 只负责关掉它。
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo:
+		return
+	match key.keycode:
+		KEY_I:
+			toggle_character()
+			get_viewport().set_input_as_handled()
+		KEY_ESCAPE:
+			if _current_tab == TAB_CHARACTER:
+				_show_tab(_prev_tab)
+				get_viewport().set_input_as_handled()
+
+
+func toggle_character() -> void:
+	if _current_tab == TAB_CHARACTER:
+		_show_tab(_prev_tab)
+	else:
+		_show_tab(TAB_CHARACTER)
 
 
 func mark_build_dirty() -> void:
@@ -139,7 +164,8 @@ func refresh(stats: Dictionary) -> void:
 		_rebuild_build_tab()
 	if _inventory_dirty:
 		_inventory_dirty = false
-		_rebuild_inventory()
+		if inventory_view != null:
+			inventory_view.refresh()
 
 
 func _buffs_text() -> String:
@@ -175,7 +201,7 @@ func _build_chrome() -> void:
 	column.add_child(tabs_row)
 	for i in TAB_NAMES.size():
 		var button := Button.new()
-		button.text = TAB_NAMES[i]
+		button.text = "角色 (I)" if i == TAB_CHARACTER else TAB_NAMES[i]
 		button.custom_minimum_size = Vector2(120, 44)
 		button.add_theme_font_size_override("font_size", 19)
 		UITheme.style_button(button)
@@ -189,7 +215,7 @@ func _build_chrome() -> void:
 
 	_tabs.append(_build_build_tab())
 	_tabs.append(_build_combat_tab())
-	_tabs.append(_build_inventory_tab())
+	_tabs.append(_build_character_tab())
 	for tab in _tabs:
 		tab.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		content.add_child(tab)
@@ -300,9 +326,9 @@ func _build_build_tab() -> Control:
 
 	box.add_child(HSeparator.new())
 	box.add_child(UITheme.heading("装备"))
-	_equip_box = VBoxContainer.new()
-	_equip_box.add_theme_constant_override("separation", 8)
-	box.add_child(_equip_box)
+	box.add_child(UITheme.label(
+		"装备与背包在「角色」页（按 I 打开）：左边 8 个部位，右边战利品；右键装备/卸下，也可以拖过去。",
+		15, UITheme.DIM, true))
 
 	return scroll
 
@@ -371,33 +397,27 @@ func _build_combat_tab() -> Control:
 	return panel
 
 
-func _build_inventory_tab() -> Control:
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-
-	var padding := MarginContainer.new()
-	padding.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	padding.add_theme_constant_override("margin_left", 4)
-	padding.add_theme_constant_override("margin_top", 12)
-	padding.add_theme_constant_override("margin_right", 4)
-	padding.add_theme_constant_override("margin_bottom", 12)
-	scroll.add_child(padding)
-
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
-	padding.add_child(box)
-
-	_inventory_hint = UITheme.label("", 15, UITheme.DIM, true)
-	box.add_child(_inventory_hint)
-	_inventory_box = VBoxContainer.new()
-	_inventory_box.add_theme_constant_override("separation", 8)
-	box.add_child(_inventory_box)
-
-	return scroll
+## 角色页：实例化编辑器里做好的背包界面，信号转成 MainUI 的统一出口。
+func _build_character_tab() -> Control:
+	inventory_view = InventoryScene.instantiate()
+	inventory_view.character = character
+	inventory_view.equip_requested.connect(func(item: Item): equip_requested.emit(item))
+	inventory_view.equip_into_requested.connect(
+		func(item: Item, key: String): equip_into_requested.emit(item, key))
+	inventory_view.unequip_requested.connect(func(key: String): unequip_requested.emit(key))
+	inventory_view.upgrade_requested.connect(func(item: Item): upgrade_requested.emit(item))
+	return inventory_view
 
 
 func _show_tab(index: int) -> void:
-	_current_tab = clampi(index, 0, _tabs.size() - 1)
+	var target := clampi(index, 0, _tabs.size() - 1)
+	if target == TAB_CHARACTER:
+		if _current_tab != TAB_CHARACTER:
+			_prev_tab = _current_tab
+		# 打开时重算一次，免得看到过期的背包。
+		if inventory_view != null:
+			inventory_view.refresh()
+	_current_tab = target
 	for i in range(_tabs.size()):
 		_tabs[i].visible = i == _current_tab
 	for i in range(_tab_buttons.size()):
@@ -441,10 +461,6 @@ func _rebuild_build_tab() -> void:
 	for talent_id in character.talent_ranks.keys():
 		_talent_box.add_child(_build_talent_row(str(talent_id)))
 
-	_clear_children(_equip_box)
-	for slot in GameData.SLOTS.keys():
-		_equip_box.add_child(_build_equip_row(str(slot)))
-
 
 func _build_talent_row(talent_id: String) -> Control:
 	var data := GameData.talent(talent_id)
@@ -473,122 +489,6 @@ func _build_talent_row(talent_id: String) -> Control:
 	return row
 
 
-func _build_equip_row(slot: String) -> Control:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	var slot_label := UITheme.label(str(GameData.SLOTS[slot].get("name", slot)), 16, UITheme.DIM)
-	slot_label.custom_minimum_size = Vector2(70, 0)
-	row.add_child(slot_label)
-
-	var item: Item = character.equipment.get(slot)
-	if item == null:
-		var empty := UITheme.label("（空）", 16, UITheme.DIM)
-		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(empty)
-		return row
-
-	var color: Color = item.rarity_data().get("color", UITheme.TEXT)
-	var name_label := UITheme.label(item.full_name(), 17, color)
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(name_label)
-
-	row.add_child(UITheme.label("战力 %s" % Num.fmt(item.score()), 15, UITheme.DIM))
-
-	var cost := item.upgrade_cost()
-	var upgrade := Button.new()
-	upgrade.text = "强化 (%d)" % cost if cost > 0 else "已满"
-	upgrade.custom_minimum_size = Vector2(118, 36)
-	UITheme.style_button(upgrade)
-	upgrade.disabled = cost <= 0 or character.materials < cost
-	upgrade.pressed.connect(_on_upgrade_pressed.bind(item))
-	row.add_child(upgrade)
-
-	var remove := Button.new()
-	remove.text = "卸下"
-	remove.custom_minimum_size = Vector2(80, 36)
-	UITheme.style_button(remove)
-	remove.pressed.connect(_on_unequip_pressed.bind(slot))
-	row.add_child(remove)
-	return row
-
-
-func _rebuild_inventory() -> void:
-	_clear_children(_inventory_box)
-	_inventory_hint.text = "背包 %d / %d。装备从挂机掉落里来，稀有度越高词条越多。%s 用于强化装备。" % [
-		character.inventory.size(),
-		GameData.MAX_INVENTORY,
-		GameData.MATERIAL_NAME,
-	]
-	if character.inventory.is_empty():
-		_inventory_box.add_child(UITheme.label("背包是空的，去「战斗」页刷一会儿。", 16, UITheme.DIM))
-		return
-
-	for item in character.inventory:
-		_inventory_box.add_child(_build_item_row(item))
-
-
-func _build_item_row(item: Item) -> Control:
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", UITheme.panel_style(Color(0.075, 0.082, 0.102), item.rarity_data().get("color", UITheme.PANEL_BORDER)))
-	var padding := MarginContainer.new()
-	padding.add_theme_constant_override("margin_left", 18)
-	padding.add_theme_constant_override("margin_top", 10)
-	padding.add_theme_constant_override("margin_right", 18)
-	padding.add_theme_constant_override("margin_bottom", 10)
-	panel.add_child(padding)
-
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 14)
-	padding.add_child(row)
-
-	var info := VBoxContainer.new()
-	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	info.add_theme_constant_override("separation", 2)
-	row.add_child(info)
-
-	info.add_child(UITheme.label("%s  %s" % [item.slot_name(), item.full_name()], 18, item.rarity_data().get("color", UITheme.TEXT)))
-
-	var affix_parts: Array[String] = []
-	for affix in item.affix_values():
-		affix_parts.append(GameData.format_affix(affix))
-	if affix_parts.is_empty():
-		info.add_child(UITheme.label("无词条", 14, UITheme.DIM))
-	else:
-		info.add_child(UITheme.label(" · ".join(affix_parts), 14, UITheme.DIM, true))
-
-	var equipped: Item = character.equipment.get(item.slot)
-	var compare_text := "战力 %s" % Num.fmt(item.score())
-	if equipped != null:
-		compare_text += "    当前 %s（%s）" % [Num.fmt(equipped.score()), _delta_text(item.score() - equipped.score())]
-	info.add_child(UITheme.label(compare_text, 14, UITheme.DIM))
-
-	var equip_button := Button.new()
-	equip_button.text = "装备"
-	equip_button.custom_minimum_size = Vector2(84, 40)
-	UITheme.style_button(equip_button)
-	equip_button.pressed.connect(_on_equip_pressed.bind(item))
-	row.add_child(equip_button)
-
-	var upgrade_cost := item.upgrade_cost()
-	var upgrade_button := Button.new()
-	upgrade_button.text = "强化 %d" % upgrade_cost if upgrade_cost > 0 else "已满"
-	upgrade_button.custom_minimum_size = Vector2(100, 40)
-	UITheme.style_button(upgrade_button)
-	upgrade_button.disabled = upgrade_cost <= 0 or character.materials < upgrade_cost
-	upgrade_button.pressed.connect(_on_upgrade_pressed.bind(item))
-	row.add_child(upgrade_button)
-
-	return panel
-
-
-func _delta_text(delta: float) -> String:
-	if delta > 0.5:
-		return "↑+%s" % Num.fmt(delta)
-	if delta < -0.5:
-		return "↓%s" % Num.fmt(delta)
-	return "持平"
-
-
 func _clear_children(box: Node) -> void:
 	if box == null:
 		return
@@ -606,15 +506,3 @@ func _on_skill_option_selected(item_index: int, row: int) -> void:
 
 func _on_talent_pressed(talent_id: String) -> void:
 	talent_requested.emit(talent_id)
-
-
-func _on_equip_pressed(item: Item) -> void:
-	equip_requested.emit(item)
-
-
-func _on_unequip_pressed(slot: String) -> void:
-	unequip_requested.emit(slot)
-
-
-func _on_upgrade_pressed(item: Item) -> void:
-	upgrade_requested.emit(item)

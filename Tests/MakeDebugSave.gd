@@ -26,7 +26,8 @@ func _init() -> void:
 		for k in range(killed):
 			character.materials += 2
 			var item := ItemGenerator.roll_item(combat.wave)
-			var current: Item = character.equipment.get(item.slot)
+			var target := character.equip_key_for(item)
+			var current: Item = character.equipped_at(target)
 			if current == null or item.score() > current.score():
 				character.equip(item)
 			else:

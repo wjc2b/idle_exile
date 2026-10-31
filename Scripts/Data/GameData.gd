@@ -81,12 +81,34 @@ const RARITIES := [
 	{"id": 4, "name": "传说", "color": Color(0.96, 0.72, 0.30), "affixes": 4, "weight": 1.0},
 ]
 
+## 物品部位（掉落时随机取一个）。这里描述的是"物品是什么"，
+## 而角色身上有哪些格子由下面的 EQUIP_SLOTS 决定（戒指占两格）。
 const SLOTS := {
-	"weapon": {"name": "武器", "bases": ["长剑", "战斧", "短弓", "法杖"]},
-	"armor": {"name": "护甲", "bases": ["皮甲", "锁子甲", "法袍"]},
+	"head": {"name": "头部", "bases": ["皮盔", "铁盔", "秘银头冠"]},
+	"body": {"name": "身体", "bases": ["皮甲", "锁子甲", "法袍"]},
+	"legs": {"name": "下装", "bases": ["皮裤", "锁甲腿", "法师长裤"]},
+	"main_hand": {"name": "主手", "bases": ["长剑", "战斧", "短弓", "法杖"]},
+	"off_hand": {"name": "副手", "bases": ["圆盾", "短剑", "魔典"]},
 	"ring": {"name": "戒指", "bases": ["铜戒", "银戒", "符文戒"]},
-	"amulet": {"name": "护符", "bases": ["兽牙护符", "星辰吊坠", "圣徽"]},
+	"amulet": {"name": "项链", "bases": ["兽牙项链", "星辰吊坠", "圣徽"]},
 }
+
+## 角色身上的格子，按界面从左上到右下的顺序排列。
+## key 是存档里的键，type 对应 SLOTS，两枚戒指共用 "ring" 类型。
+const EQUIP_SLOTS := [
+	{"key": "head", "type": "head", "name": "头部"},
+	{"key": "amulet", "type": "amulet", "name": "项链"},
+	{"key": "main_hand", "type": "main_hand", "name": "主手"},
+	{"key": "ring1", "type": "ring", "name": "戒指 I"},
+	{"key": "body", "type": "body", "name": "身体"},
+	{"key": "ring2", "type": "ring", "name": "戒指 II"},
+	{"key": "off_hand", "type": "off_hand", "name": "副手"},
+	{"key": "legs", "type": "legs", "name": "下装"},
+]
+
+## 旧存档（v3 及以前）只有 武器/护甲/戒指/护符 四格，读档时映射到新格子。
+const LEGACY_SLOTS := {"weapon": "main_hand", "armor": "body"}
+const LEGACY_EQUIP_KEYS := {"weapon": "main_hand", "armor": "body", "ring": "ring1"}
 
 ## 词条池。flat 类的数值随物品等级指数增长，百分比类保持区间（避免后期失控）。
 const AFFIXES := [
@@ -102,7 +124,8 @@ const AFFIXES := [
 ]
 
 const MAX_SKILL_SLOTS := 4
-const MAX_INVENTORY := 40
+## 背包容量对齐 InventoryUI.tscn 里 6 列 x 7 行的格子数。
+const MAX_INVENTORY := 42
 const MAX_UPGRADE := 10
 const UPGRADE_COST_BASE := 4
 const UPGRADE_POWER := 1.10
@@ -127,6 +150,34 @@ static func skill(skill_id: String) -> Dictionary:
 
 static func talent(talent_id: String) -> Dictionary:
 	return TALENTS.get(talent_id, {})
+
+
+static func normalize_slot(slot: String) -> String:
+	return str(LEGACY_SLOTS.get(slot, slot))
+
+
+static func normalize_equip_key(key: String) -> String:
+	return str(LEGACY_EQUIP_KEYS.get(key, key))
+
+
+static func slot_name(slot: String) -> String:
+	return str(SLOTS.get(slot, {}).get("name", slot))
+
+
+## 某个物品类型能放进的格子：普通部位一个，戒指两个。
+static func equip_keys_for(slot: String) -> Array[String]:
+	var out: Array[String] = []
+	for entry in EQUIP_SLOTS:
+		if str(entry.get("type", "")) == slot:
+			out.append(str(entry.get("key", "")))
+	return out
+
+
+static func equip_slot(key: String) -> Dictionary:
+	for entry in EQUIP_SLOTS:
+		if str(entry.get("key", "")) == key:
+			return entry
+	return {}
 
 
 static func stat_label(stat: String) -> String:

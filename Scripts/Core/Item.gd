@@ -3,7 +3,7 @@ extends RefCounted
 
 ## 一件装备：槽位 + 基础名 + 稀有度 + 词条 + 强化等级。
 
-var slot := "weapon"
+var slot := "main_hand"
 var base_name := "长剑"
 var rarity := 0
 var item_level := 1
@@ -26,7 +26,7 @@ func full_name() -> String:
 
 
 func slot_name() -> String:
-	return GameData.SLOTS.get(slot, {}).get("name", slot)
+	return GameData.slot_name(slot)
 
 
 ## 强化加成：每级让词条数值乘 1.1
@@ -101,7 +101,7 @@ func to_dict() -> Dictionary:
 
 static func from_dict(data: Dictionary) -> Item:
 	var item := Item.new()
-	item.slot = str(data.get("slot", "weapon"))
+	item.slot = GameData.normalize_slot(str(data.get("slot", "main_hand")))
 	item.base_name = str(data.get("base_name", "物品"))
 	item.rarity = int(data.get("rarity", 0))
 	item.item_level = maxi(1, int(data.get("item_level", 1)))

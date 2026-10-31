@@ -15,6 +15,11 @@ const HP := Color(0.80, 0.30, 0.32)
 const ENEMY_HP := Color(0.72, 0.36, 0.86)
 const ACCENT_BAR := Color(0.36, 0.62, 0.92)
 
+## 暗黑/流放之路那套青铜描边配色。
+const FRAME_GOLD := Color(0.68, 0.53, 0.28)
+const FRAME_DIM := Color(0.30, 0.25, 0.15)
+const SLOT_BG := Color(0.030, 0.028, 0.036)
+
 
 static func build_theme() -> Theme:
 	var result := Theme.new()
@@ -30,6 +35,8 @@ static func build_theme() -> Theme:
 	font.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
 	result.default_font = font
 	result.default_font_size = 18
+	# 装备提示默认 18 号会糊住整个纸娃娃，单独调小。
+	result.set_font_size("font_size", "TooltipLabel", 15)
 	return result
 
 
@@ -75,6 +82,33 @@ static func label(content: String, size: int, color: Color, wrap: bool = false) 
 
 static func heading(content: String) -> Label:
 	return label(content, 26, GOLD)
+
+
+## 带左右细线的段落标题，比纯文字像"设计过"。
+static func section_heading(content: String) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.add_child(_rule())
+	row.add_child(label(content, 21, FRAME_GOLD))
+	row.add_child(_rule())
+	return row
+
+
+static func _rule() -> Control:
+	var line := ColorRect.new()
+	line.color = Color(0.26, 0.21, 0.12)
+	line.custom_minimum_size = Vector2(0, 1)
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return line
+
+
+## 面板用：稍亮一点的青铜边框。
+static func frame_style(bg: Color = PANEL, border: Color = Color(0.26, 0.21, 0.13)) -> StyleBoxFlat:
+	var style := panel_style(bg, border)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	return style
 
 
 static func progress(fill_color: Color) -> ProgressBar:

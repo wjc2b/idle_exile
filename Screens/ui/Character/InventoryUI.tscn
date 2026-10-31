@@ -1,0 +1,232 @@
+[gd_scene load_steps=4 format=3 uid="uid://ni1jyowlm1dw"]
+
+[ext_resource type="Script" path="res://Scripts/UI/InventoryUI.gd" id="3_inv"]
+[ext_resource type="PackedScene" uid="uid://djc2q6aabygr3" path="res://Screens/ui/Character/EquipmentSlot.tscn" id="1_878sh"]
+[ext_resource type="PackedScene" uid="uid://ealteiwnfmsn" path="res://Screens/ui/Character/IntentorySlot.tscn" id="2_27lnf"]
+
+[node name="InventoryUi" type="Control" unique_id=313664476]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_inv")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1095262825]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainLayout" type="HBoxContainer" parent="CenterContainer" unique_id=1496907482]
+custom_minimum_size = Vector2(1480, 832)
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="EquipmentPanel" type="Panel" parent="CenterContainer/MainLayout" unique_id=498229263]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RightRing" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=958076748 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 480.0
+offset_right = 544.0
+offset_bottom = 544.0
+size_flags_horizontal = 0
+
+[node name="Head" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=1051023450 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 296.0
+offset_top = 60.0
+offset_right = 440.0
+offset_bottom = 204.0
+
+[node name="Body" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=1289398210 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 272.0
+offset_top = 232.0
+offset_right = 464.0
+offset_bottom = 472.0
+
+[node name="Legs" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=431107255 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 272.0
+offset_top = 500.0
+offset_right = 464.0
+offset_bottom = 786.0
+
+[node name="Amulet" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=936523908 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 496.0
+offset_top = 100.0
+offset_right = 560.0
+offset_bottom = 164.0
+
+[node name="OffHand" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=172457792 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 496.0
+offset_top = 180.0
+offset_right = 660.0
+offset_bottom = 460.0
+
+[node name="LeftRing" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=151517832 instance=ExtResource("1_878sh")]
+layout_mode = 0
+offset_left = 192.0
+offset_top = 480.0
+offset_right = 256.0
+offset_bottom = 544.0
+
+[node name="MainHand" parent="CenterContainer/MainLayout/EquipmentPanel" unique_id=630594168 instance=ExtResource("1_878sh")]
+custom_minimum_size = Vector2(120, 160)
+layout_mode = 0
+offset_left = 76.0
+offset_top = 180.0
+offset_right = 240.0
+offset_bottom = 460.0
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/MainLayout" unique_id=694689086]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="InventoryGrid" type="GridContainer" parent="CenterContainer/MainLayout/MarginContainer" unique_id=1133156825]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/h_separation = 13
+theme_override_constants/v_separation = 19
+columns = 6
+
+[node name="Slot1" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1930983522 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot2" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1374474322 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot3" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=992525495 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot4" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1104365171 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot5" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=681006510 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot6" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=407840046 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot7" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1829961746 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot8" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=844307733 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot9" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1890546643 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot10" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=414489080 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot11" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=11023430 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot12" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1482411889 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot13" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=798505436 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot14" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1162414413 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot15" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1630357138 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot16" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1349821979 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot17" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1036419989 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot18" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1834102677 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot19" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=931472342 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot20" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=830636119 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot21" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1081546784 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot22" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=331938466 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot23" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1996152265 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot24" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1883046346 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot25" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1276071518 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot26" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1260224279 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot27" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=2068500865 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot28" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=872137410 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot29" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=645640570 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot30" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1121762290 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot31" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=310093259 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot32" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1820007507 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot33" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=819748236 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot34" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1834186613 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot35" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1397160076 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot36" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1614444647 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot37" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1838826502 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot38" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=844963130 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot39" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=1488128795 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot40" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=432778605 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot41" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=717243833 instance=ExtResource("2_27lnf")]
+layout_mode = 2
+
+[node name="Slot42" parent="CenterContainer/MainLayout/MarginContainer/InventoryGrid" unique_id=234959122 instance=ExtResource("2_27lnf")]
+layout_mode = 2

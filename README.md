@@ -10,7 +10,8 @@
 - **技能槽**：每个职业 5 个技能，任选 4 个装进槽位。技能按冷却自动轮转释放，有瞬发/持续伤害/回血/增益四类。
 - **天赋**：每级 1 点，每个职业 3 条天赋，每条 3 级，直接改战斗属性。
 - **自动战斗**：普攻 + 技能轮转，按技能倍率、暴击、敌人护甲结算；死亡倒退 3 波。
-- **刷宝**：击杀掉落装备（5 档稀有度、最多 4 条词条），不如身上装备的自动分解成强化石。
+- **刷宝**：击杀掉落 8 个部位的装备（头/身/下装/主手/副手/双戒/项链），5 档稀有度、最多 4 条词条，不如身上装备的自动分解成强化石。
+- **背包 / 装备界面**：按 `I` 打开。左边纸娃娃 8 个格子，右边 6×7 的背包格；右键装备或卸下，也可以把背包里的装备直接拖到对应部位。
 - **强化**：装备最多 +10，每次 +10% 词条数值。
 - **金币出口**：200 金币换 10 强化石。
 - **存档 / 离线**：每 10 秒自动存档，关窗口也存；再次进入按离线时长结算（最多 8 小时）。
@@ -32,29 +33,49 @@ f:\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64.exe --headless 
 
 ```
 Scripts/
-  Data/GameData.gd      职业 / 技能 / 天赋 / 词条 / 稀有度 —— 调平衡主要改这里
+  Data/GameData.gd      职业 / 技能 / 天赋 / 词条 / 稀有度 / 部位 —— 调平衡主要改这里
   Core/
-    Character.gd        角色数据：等级、天赋分配、技能槽、装备、背包
+    Character.gd        角色数据：等级、天赋分配、技能槽、装备（8 格）、背包
     StatBlock.gd        属性聚合：(基础 + flat) × (1 + increased) × more
-    Item.gd             装备：槽位、稀有度、词条、强化
+    Item.gd             装备：部位、稀有度、词条、强化
     ItemGenerator.gd    掉落生成：稀有度加权、词条抽取
     CombatSystem.gd     技能轮转自动战斗（纯逻辑，无节点依赖）
     EnemyState.gd       按波次缩放的敌人
-    SaveSystem.gd       存档 v3（JSON）
+    SaveSystem.gd       存档 v4（JSON，旧档读入时自动迁移）
     Num.gd              数字与时长格式化
   UI/
     UITheme.gd          配色、字体、控件工厂
     ClassSelectUI.gd    选职业界面（含头像）
-    MainUI.gd           构筑 / 战斗 / 背包三页
+    MainUI.gd           构筑 / 战斗 / 角色三页（角色页只是宿主）
+    InventoryUI.gd      背包界面主脚本：填格、选中、详情条、信号
+    ItemSlotView.gd     单个装备/背包格：图标、右键、拖放、tooltip
+    EquipIcon.gd        没有图标素材时用代码画的部位剪影
   Game.gd               主控：存档、离线结算、掉落、界面切换
+Screens/
+  ui/Character/
+    InventoryUI.tscn    背包界面（编辑器里排的版）
+    EquipmentSlot.tscn  装备格
+    IntentorySlot.tscn  背包格
 Assets/
   Portraits/            四个职业头像（透明底，由 Tools/ProcessPortraits.gd 生成）
 Tools/
   ProcessPortraits.gd   把黑底角色图抠成透明头像：去黑底 → 裁包围盒 → 横排图自动切分
+  CaptureWindow.ps1     只截游戏窗口客户区的截图脚本（不会把桌面/任务栏拍进去）
 Tests/
   SimulateProbe.gd      三职业各跑 30 分钟的数值探针
+  InventoryProbe.gd     装备格/双戒指/存档迁移/拖放契约/I 键开关的自检
   MakeDebugSave.gd      造一个"玩了几分钟"的存档，方便看界面
 ```
+
+## 背包界面怎么改
+
+界面是编辑器场景 `Screens/ui/Character/InventoryUI.tscn`，脚本只负责填数据，不改布局：
+
+- 左边 `EquipmentPanel` 下的节点名 → 存档键的映射写在 `InventoryUI.EQUIP_NODES`，改名要同步。
+- 右边 `InventoryGrid` 的格子数量就是背包容量，改格子记得同步 `GameData.MAX_INVENTORY`。
+- 格子图标走 `res://Assets/Items/<部位>.png`（例如 `head.png`、`main_hand.png`、`ring.png`），
+  有图就用图，没有就用 `EquipIcon.gd` 画的剪影。
+- 物品名和强化等级（`+N`）由脚本写进格子里的 `Label` 与额外创建的名字标签。
 
 ## 头像素材
 
@@ -103,4 +124,5 @@ f:\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64.exe --headless 
 - **没有声望/转生**：数值是一条曲线，挂久了会进入"升级越来越慢"的平台期，缺一个重开换永久加成的循环。
 - **装备只靠随机词条**：没有套装、没有传奇特效。
 - **没有多波敌人/关卡**：单一波次推进，缺 boss 与地图选择。
-- **UI 是代码搭的**：改布局要改 `MainUI.gd`，没有可视化编辑器预览。
+- **物品没有图标**：背包现在用的是代码画的部位剪影，等有美术素材再换成贴图（`Assets/Items/`）。
+- **其余页面还是代码搭的**：构筑页 / 战斗页仍在 `MainUI.gd` 里拼，背包页已经改成编辑器场景。

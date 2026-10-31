@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://ealteiwnfmsn"]
+
+[ext_resource type="Script" path="res://Scripts/UI/ItemSlotView.gd" id="1_slot"]
+
+[node name="IntentoryGrid" type="PanelContainer" unique_id=1930983522]
+custom_minimum_size = Vector2(96, 96)
+script = ExtResource("1_slot")
+
+[node name="Control" type="Control" parent="." unique_id=1703986719]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="Control" unique_id=34037592]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Control" unique_id=605745308]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "0"
+horizontal_alignment = 2
+vertical_alignment = 2

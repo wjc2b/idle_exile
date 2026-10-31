@@ -121,6 +121,7 @@ func _show_main_ui() -> void:
 	ui.skill_slot_changed.connect(_on_skill_slot_changed)
 	ui.talent_requested.connect(_on_talent_requested)
 	ui.equip_requested.connect(_on_equip_requested)
+	ui.equip_into_requested.connect(_on_equip_into_requested)
 	ui.unequip_requested.connect(_on_unequip_requested)
 	ui.upgrade_requested.connect(_on_upgrade_requested)
 	ui.save_requested.connect(func(): _save_game(true))
@@ -139,15 +140,17 @@ func _stats() -> Dictionary:
 
 func _grant_kills() -> void:
 	var killed := combat.consume_kills()
+	var level_before := character.level
 	for i in range(killed):
 		var cleared_wave := maxi(1, combat.wave - 1)
 		character.materials += randi_range(MATERIAL_DROP_MIN, MATERIAL_DROP_MAX)
 		if randf() >= DROP_CHANCE:
 			continue
 		var item := ItemGenerator.roll_item(cleared_wave)
-		var equipped: Item = character.equipment.get(item.slot)
+		var target_key := character.equip_key_for(item)
+		var equipped: Item = character.equipped_at(target_key)
 		if equipped != null and item.score() <= equipped.score():
-			# 不如身上的装备，直接熔成强化石，避免背包被垃圾塞满。
+			# 不如身上的装备（戒指比的是两只里差的那只），直接熔成强化石，避免背包被垃圾塞满。
 			character.materials += 1 + item.rarity
 			ui.push_log("[color=#6a7080]分解 %s（+%d %s）[/color]" % [
 				item.full_name(), 1 + item.rarity, GameData.MATERIAL_NAME,
@@ -162,6 +165,9 @@ func _grant_kills() -> void:
 		ui.mark_inventory_dirty()
 	if killed > 0:
 		ui.mark_inventory_dirty()
+	if character.level != level_before:
+		# 升级解锁天赋点，构筑页的 + 按钮要立刻可用。
+		ui.mark_build_dirty()
 
 
 func _apply_offline(data: Dictionary) -> void:
@@ -216,9 +222,22 @@ func _on_talent_requested(talent_id: String) -> void:
 
 
 func _on_equip_requested(item: Item) -> void:
-	if not character.remove_item(item):
-		return
-	character.equip(item)
+	if character.equip(item):
+		_refresh_after_gear()
+
+
+func _on_equip_into_requested(item: Item, slot_key: String) -> void:
+	if character.equip_at(slot_key, item):
+		_refresh_after_gear()
+
+
+func _on_unequip_requested(slot: String) -> void:
+	if character.unequip(slot):
+		_refresh_after_gear()
+
+
+## 换装/强化之后统一走这里：重算战斗属性、刷新左右两栏并落盘。
+func _refresh_after_gear() -> void:
 	combat.refresh_stats()
 	ui.mark_build_dirty()
 	ui.mark_inventory_dirty()
@@ -226,22 +245,9 @@ func _on_equip_requested(item: Item) -> void:
 	_save_game(false)
 
 
-func _on_unequip_requested(slot: String) -> void:
-	if character.unequip(slot):
-		combat.refresh_stats()
-		ui.mark_build_dirty()
-		ui.mark_inventory_dirty()
-		ui.refresh(_stats())
-		_save_game(false)
-
-
 func _on_upgrade_requested(item: Item) -> void:
 	if character.upgrade_item(item):
-		combat.refresh_stats()
-		ui.mark_build_dirty()
-		ui.mark_inventory_dirty()
-		ui.refresh(_stats())
-		_save_game(false)
+		_refresh_after_gear()
 
 
 func _on_exchange_requested() -> void:

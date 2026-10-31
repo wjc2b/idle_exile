@@ -1,11 +1,12 @@
 class_name SaveSystem
 extends RefCounted
 
-## 存档 v3：角色（职业/天赋/技能槽/装备/背包）+ 战斗进度。
+## 存档 v4：角色（职业/天赋/技能槽/装备/背包）+ 战斗进度。
+## 装备从第 4 版起分 7 个格子（头/身/主手/副手/双戒/项链），旧档在读档时自动迁移。
 ## 单个 JSON 文件，字段平铺，方便手改与排查。
 
 const SAVE_PATH := "user://save.json"
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
 
 
 static func has_save() -> bool:

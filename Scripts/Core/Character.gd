@@ -106,7 +106,8 @@ func crit_chance() -> float:
 
 
 func crit_multiplier() -> float:
-	return stats().value("crit_mult", 1.5)
+	# 职业基础值本身就记在 crit_mult 上（1.5 起），这里不再叠默认值，否则会翻一倍。
+	return maxf(1.0, stats().value("crit_mult"))
 
 
 func lifesteal() -> float:
@@ -187,27 +188,75 @@ func set_skill_slot(index: int, skill_id: String) -> bool:
 	return true
 
 
-func equip(item: Item) -> void:
+## 某件物品应该落到哪个格子：先填空位，两个戒指都满了再替换评分较低的那只。
+func equip_key_for(item: Item) -> String:
 	if item == null:
-		return
-	var slot := item.slot
-	if equipment.has(slot):
-		var old: Item = equipment[slot]
-		if old != null:
-			if inventory.size() < GameData.MAX_INVENTORY:
-				inventory.append(old)
-			else:
-				materials += _sell_value(old)
-	equipment[slot] = item
+		return ""
+	var keys := GameData.equip_keys_for(item.slot)
+	if keys.is_empty():
+		return ""
+	for key in keys:
+		if equipment.get(key) == null:
+			return key
+	var worst: String = keys[0]
+	var worst_score := INF
+	for key in keys:
+		var current: Item = equipment.get(key)
+		var current_score := current.score() if current != null else -INF
+		if current_score < worst_score:
+			worst_score = current_score
+			worst = key
+	return worst
 
 
-func unequip(slot: String) -> bool:
-	if not equipment.has(slot):
+func equipped_at(key: String) -> Item:
+	return equipment.get(key)
+
+
+## 某个部位上最好的一件（戒指有两格时取强的），用于背包里做对比。
+func equipped_for_slot(slot: String) -> Item:
+	var best: Item = null
+	for key in GameData.equip_keys_for(slot):
+		var current: Item = equipment.get(key)
+		if current == null:
+			continue
+		if best == null or current.score() > best.score():
+			best = current
+	return best
+
+
+func equip(item: Item) -> bool:
+	if item == null:
+		return false
+	return equip_at(equip_key_for(item), item)
+
+
+## 放进指定格子（拖放用）。部位不符直接拒绝，返回 false。
+func equip_at(key: String, item: Item) -> bool:
+	if item == null or key == "":
+		return false
+	var entry := GameData.equip_slot(key)
+	if entry.is_empty() or str(entry.get("type", "")) != item.slot:
+		return false
+	remove_item(item)
+	var old: Item = equipment.get(key)
+	if old != null:
+		if inventory.size() < GameData.MAX_INVENTORY:
+			inventory.append(old)
+		else:
+			materials += _sell_value(old)
+	equipment[key] = item
+	return true
+
+
+func unequip(key: String) -> bool:
+	var item: Item = equipment.get(key)
+	if item == null:
 		return false
 	if inventory.size() >= GameData.MAX_INVENTORY:
 		return false
-	inventory.append(equipment[slot])
-	equipment.erase(slot)
+	equipment.erase(key)
+	inventory.append(item)
 	return true
 
 
@@ -299,9 +348,11 @@ static func from_dict(data: Dictionary) -> Character:
 		character.skill_slots.append("")
 
 	var gear: Dictionary = data.get("equipment", {})
-	for slot in gear:
-		if gear[slot] is Dictionary:
-			character.equipment[str(slot)] = Item.from_dict(gear[slot])
+	for raw_key in gear:
+		if not (gear[raw_key] is Dictionary):
+			continue
+		var key := GameData.normalize_equip_key(str(raw_key))
+		character.equipment[key] = Item.from_dict(gear[raw_key])
 
 	for entry in data.get("inventory", []):
 		if entry is Dictionary:
